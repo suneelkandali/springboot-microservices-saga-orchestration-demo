@@ -10,6 +10,14 @@ It includes:
 - an orchestrator service
 - a PostgreSQL database
 
+The Saga workflow built in this demo application is:
+
+- Orchestrator receives an order request.
+- Orchestrator calls Order Service to create an order in a PENDING state.
+- Orchestrator calls Inventory Service to reserve stock.
+- Success: Orchestrator calls Order Service to update the status to COMPLETED.
+- Failure (Compensating Transaction): If stock is insufficient, the Inventory Service rejects the request. The Orchestrator catches this and calls the Order Service to CANCEL the order.
+
 ## Prerequisites on a Mac
 
 Make sure the following are installed and running:
