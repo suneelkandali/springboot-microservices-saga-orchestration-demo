@@ -1,0 +1,36 @@
+# Maven / Gradle
+/target/
+**/target/
+build/
+**/build/
+
+# IntelliJ IDEA
+.idea/
+*.iml
+
+# VS Code
+.vscode/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Environment files
+.env
+.env.*
+
+# Docker
+*.local
+
+# Java / Spring Boot
+*.class
+*.jar
+*.war
+*.ear
+
+# Test reports
+/test-output/
+**/test-output/

@@ -1,0 +1,76 @@
+services:
+  postgres-db:
+    image: postgres:15-alpine
+    container_name: saga-postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+    ports:
+      - "5433:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./init-scripts:/docker-entrypoint-initdb.d
+    networks:
+      - saga-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  order-service:
+    build:
+      context: .
+      dockerfile: ./order-service/Dockerfile
+    container_name: order-service
+    ports:
+      - "8083:8081"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres-db:5432/saga_order_db
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=password
+    depends_on:
+      postgres-db:
+        condition: service_healthy
+    networks:
+      - saga-network
+
+  inventory-service:
+    build:
+      context: .
+      dockerfile: ./inventory-service/Dockerfile
+    container_name: inventory-service
+    ports:
+      - "8084:8082"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres-db:5432/saga_inventory_db
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=password
+    depends_on:
+      postgres-db:
+        condition: service_healthy
+    networks:
+      - saga-network
+
+  orchestrator-service:
+    build:
+      context: .
+      dockerfile: ./orchestrator-service/Dockerfile
+    container_name: orchestrator-service
+    ports:
+      - "8085:8080"
+    environment:
+      - SERVICE_ORDER=http://order-service:8081/api/orders
+      - SERVICE_INVENTORY=http://inventory-service:8082/api/inventory
+    depends_on:
+      - order-service
+      - inventory-service
+    networks:
+      - saga-network
+
+volumes:
+  pgdata:
+
+networks:
+  saga-network:
+    driver: bridge
