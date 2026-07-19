@@ -1,0 +1,30 @@
+{
+  "info": {
+    "name": "Saga Orchestration Demo",
+    "_postman_id": "b1d7a2f4-0000-4000-8000-000000000000",
+    "description": "Basic Postman collection to exercise the checkout saga.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Checkout - Orchestrator",
+      "request": {
+        "method": "POST",
+        "header": [
+          {"key": "Content-Type", "value": "application/json"}
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\"productId\":101,\"quantity\":2,\"price\":99.99}"
+        },
+        "url": {
+          "raw": "http://localhost:8085/api/saga/checkout",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8085",
+          "path": ["api","saga","checkout"]
+        }
+      }
+    }
+  ]
+}
