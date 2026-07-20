@@ -10,6 +10,63 @@ It includes:
 - an orchestrator service
 - a PostgreSQL database
 
+## Project structure
+
+```
+springboot-microservices-saga-orchestration-demo/
+├── docker-compose.yml                     # Orchestrates all 4 containers
+├── init-scripts/
+│   └── init.sql                           # Seeds inventory table with product 101 (stock: 5)
+├── postman/
+│   └── collection.json                    # Postman collection for testing
+│
+├── orchestrator-service/                  # Port 8085 — central saga coordinator
+│   ├── Dockerfile                         # Multi-stage Docker build
+│   ├── pom.xml                            # Spring Boot 3.2.4, Resilience4j, AOP, Actuator
+│   └── src/main/java/com/example/saga/orchestrator/
+│       ├── OrchestratorApplication.java   # @SpringBootApplication entry point
+│       ├── controller/
+│       │   └── OrchestratorController.java  # POST /api/saga/checkout
+│       ├── dto/
+│       │   ├── OrderRequest.java          # { productId, quantity, price }
+│       │   ├── OrderResponse.java         # { orderId, status, message }
+│       │   ├── InventoryRequest.java      # { orderId, productId, quantity }
+│       │   └── InventoryResponse.java     # { success, message }
+│       ├── service/
+│       │   ├── SagaOrchestratorService.java    # Saga workflow + @CircuitBreaker methods
+│       │   └── CircuitBreakerEventLogger.java  # Logs state transitions & rejected calls
+│       └── resources/
+│           └── application.yml            # Resilience4j + Actuator config
+│
+├── order-service/                         # Port 8083 — order management
+│   ├── Dockerfile
+│   ├── pom.xml
+│   └── src/main/java/com/example/saga/order/
+│       ├── OrderApplication.java          # @SpringBootApplication entry point
+│       ├── controller/
+│       │   └── OrderController.java       # POST /api/orders, PUT /{id}/confirm, PUT /{id}/cancel
+│       ├── entity/
+│       │   └── PurchaseOrder.java         # JPA entity: id, productId, quantity, price, status
+│       └── repository/
+│           └── OrderRepository.java       # Spring Data JPA repository
+│
+├── inventory-service/                     # Port 8084 — stock management
+│   ├── Dockerfile
+│   ├── pom.xml
+│   ├── resources/
+│   │   └── application.yml                # DB config for saga_inventory_db
+│   └── src/main/java/com/example/saga/inventory/
+│       ├── InventoryApplication.java      # @SpringBootApplication entry point
+│       ├── controller/
+│       │   └── InventoryController.java   # POST /api/inventory/reserve
+│       ├── entity/
+│       │   └── Inventory.java             # JPA entity: productId, availableStock
+│       └── repository/
+│           └── InventoryRepository.java   # Spring Data JPA repository
+│
+└── README.md                              # This file
+```
+
 ## Saga workflow 
 
 - Orchestrator receives an order request.
