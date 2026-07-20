@@ -17,7 +17,7 @@ resilience4j:
         slidingWindowSize: 5
         minimumNumberOfCalls: 3
         failureRateThreshold: 50
-        waitDurationInOpenState: 600s
+        waitDurationInOpenState: 30s
         permittedNumberOfCallsInHalfOpenState: 2
         automaticTransitionFromOpenToHalfOpenEnabled: true
       inventoryServiceCircuitBreaker:
@@ -26,7 +26,7 @@ resilience4j:
         slidingWindowSize: 5
         minimumNumberOfCalls: 3
         failureRateThreshold: 50
-        waitDurationInOpenState: 600s
+        waitDurationInOpenState: 30s
         permittedNumberOfCallsInHalfOpenState: 2
         automaticTransitionFromOpenToHalfOpenEnabled: true
 
@@ -45,3 +45,7 @@ management:
       enabled: true
     readinessstate:
       enabled: true
+
+logging:
+  level:
+    io.github.resilience4j: DEBUG
